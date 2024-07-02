@@ -25,3 +25,8 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 class UserState(StatesGroup):
     """Register states"""
     start_register = State()
+    get_dateAboutUser_name = State()
+
+class AgreementUser(StatesGroup):
+    """User Agreement"""
+    get_user_info=State()

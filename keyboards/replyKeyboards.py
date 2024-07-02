@@ -19,6 +19,7 @@ class GeneralKeyboards:
     """
     # Buttons
     btn_command_start = KeyboardButton("/start")
+    btn_agreement_accept = KeyboardButton('Согласиться')
 
     # Single keyboards
 
@@ -27,8 +28,11 @@ class GeneralKeyboards:
     single_btn_command_start.add(btn_command_start)
 
 
+
     # Group keyboards
 
-
+ # - - - User Agreement -  - -
+    group_agreement = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    group_agreement.row(btn_agreement_accept)
 
 
