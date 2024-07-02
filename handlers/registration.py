@@ -13,6 +13,7 @@ from keyboards import *
 from services import *
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 import requests
+import re
 
 
 async def startCommand(message: types.Message):
@@ -45,30 +46,49 @@ async def fio (message:types.Message):
 
 async def ask_phone(message: types.Message):
     global dataAboutUser
-    dataAboutUser[message.from_user.id]["name"] = message.text
-    await UserState.get_dateAboutUser_number.set()
-    await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.numb}')
+    if re.fullmatch(r'[А-Яа-яЁё\s]+', message.text):
+        dataAboutUser[message.from_user.id]["name"] = message.text
+        await UserState.get_dateAboutUser_number.set()
+        await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.numb}')
+    else:
+        await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'Неверный формат имени. Пожалуйста, введите имя, содержащее только кириллицу.')
+        await UserState.start_register.set()
+
+    
+    
     
 async def ask_mail(message:types.Message):
     global dataAboutUser
-    dataAboutUser[message.from_user.id]["phone"] = message.text
-    await UserState.go_menu.set()
-    await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.mail}')
+    if message.text.startswith('+7') or message.text.startswith('8'):
+        dataAboutUser[message.from_user.id]["phone"] = message.text
+        await UserState.go_menu.set()
+        await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.mail}')
+    else:
+        await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'Введён неверный формат номера')
+        await UserState.get_dateAboutUser_number.set()
+    
     
 
 async def go_to_menu(message:types.Message):
     global dataAboutUser
-    dataAboutUser[message.from_user.id]["mail"] = message.text
-    await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'Все прошло успешно')
-    print(dataAboutUser)
-    print(dataAboutUser[message.from_user.id]["name"])
+    if "@" in message.text:
+        dataAboutUser[message.from_user.id]["mail"] = message.text
+        await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'Все прошло успешно')
+    else:
+        await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'Введён неверный формат почты')
+        await UserState.go_menu.set()
+    
     
     
     #Запрос на POST этих данных
-    userData = requests.post(f'{BASE_URL}/registrations',json={'tg_id':dataAboutUser[message.from_user.id]["user_tg_id"],
+    try:
+        userData = requests.post(f'{BASE_URL}/registrations',json={'tg_id':dataAboutUser[message.from_user.id]["user_tg_id"],
                                                                'name':dataAboutUser[message.from_user.id]["name"],
                                                               'phone':dataAboutUser[message.from_user.id]["phone"],
                                                               'email':dataAboutUser[message.from_user.id]["mail"]})
+    except Exception as e:
+        log_error(e)
+    
 
 
 
