@@ -3,6 +3,8 @@ from datetime import time
 from datetime import timedelta
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+
+import keyboards
 from loader import ts
 from loader import bot
 from loader import dp
@@ -14,6 +16,7 @@ from services import *
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 import requests
 import requests
+from keyboards import *
 
 
 async def startCommand(message: types.Message):
@@ -36,7 +39,11 @@ async def fio (message:types.Message):
 
     global dataAboutUser
     if message.text == "Зарегистрироваться":
-
+        await AgreementUser.get_user_info.set()
+        await bot.send_message(message.from_user.id, f'{txt_reg.t_agreement_1}',
+                               reply_markup=GeneralKeyboards.group_agreement)
+        await bot.send_message(message.from_user.id, f'{txt_reg.t_agreement_2}',
+                               reply_markup=keyboards.inlineKeyboards.UserAgreement)
         await UserState.get_dateAboutUser_fio.set()
         await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.fio}',reply_markup=ReplyKeyboardRemove())
     else:
