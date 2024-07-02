@@ -65,7 +65,7 @@ async def go_to_menu(message:types.Message):
     
     
     #Запрос на POST этих данных
-    userData = requests.post(f'{BASE_URL}/registrations',json={'id_tg':dataAboutUser[message.from_user.id]["user_tg_id"],
+    userData = requests.post(f'{BASE_URL}/registrations',json={'tg_id':dataAboutUser[message.from_user.id]["user_tg_id"],
                                                                'name':dataAboutUser[message.from_user.id]["name"],
                                                               'phone':dataAboutUser[message.from_user.id]["phone"],
                                                               'email':dataAboutUser[message.from_user.id]["mail"]})
