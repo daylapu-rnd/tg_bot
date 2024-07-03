@@ -21,6 +21,7 @@ class GeneralKeyboards:
     btn_command_start = KeyboardButton("/start")
     btn_register = KeyboardButton("Зарегистрироваться")
     btn_about = KeyboardButton("О сервисе")
+    btn_agreement_accept = KeyboardButton('Согласиться')
 
     btn_main_menu = KeyboardButton("Веруться в меню")
     btn_profile = KeyboardButton("Профиль")
@@ -41,7 +42,7 @@ class GeneralKeyboards:
     # - - - Command Start - - -
     single_btn_command_start = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     single_btn_command_start.add(btn_command_start)
-    
+
     single_btn_registration = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     single_btn_registration.add(btn_register).add(btn_about)
 
@@ -49,6 +50,11 @@ class GeneralKeyboards:
 
     # Group keyboards
 
+
+ # - - - User Agreement -  - -
+    group_agreement = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    group_agreement.row(btn_agreement_accept)
+    
     group_kb_yes_or_no = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     group_kb_yes_or_no.row(btn_yes, btn_no)
 
