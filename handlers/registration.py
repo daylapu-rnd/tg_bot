@@ -18,6 +18,9 @@ import requests
 import requests
 from keyboards import *
 
+import re
+from handlers import main_menu
+
 
 async def startCommand(message: types.Message):
     """
@@ -35,61 +38,60 @@ async def startCommand(message: types.Message):
                            reply_markup=GeneralKeyboards.single_btn_registration)
     await UserState.start_register.set()
 
-async def fio (message:types.Message):
 
+async def fio(message: types.Message):
     global dataAboutUser
     if message.text == "Зарегистрироваться":
-        await AgreementUser.get_user_info.set()
-        await bot.send_message(message.from_user.id, f'{txt_reg.t_agreement_1}',
-                               reply_markup=GeneralKeyboards.group_agreement)
-        await bot.send_message(message.from_user.id, f'{txt_reg.t_agreement_2}',
-                               reply_markup=keyboards.inlineKeyboards.UserAgreement)
-
-        # Ожидаем нажатия на кнопку
-        user_response = await bot.wait_for_message(chat_id=message.from_user.id)
-
-        if user_response.text == txt_reg.fio:
-            await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.fio}',
-                                   reply_markup=ReplyKeyboardRemove())
-            await UserState.start_register.set()
-        else:
-            await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'ПОЛЬЗУЙСЯ КНОПКОЙ',
-                                   reply_markup=GeneralKeyboards.single_btn_command_start)
-            await UserState.start_register.set()
+        await UserState.get_dateAboutUser_fio.set()
+        await bot.send_message(message.from_user.id, f'{txt_reg.fio}', reply_markup=ReplyKeyboardRemove())
     else:
-        await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'ПОЛЬЗУЙСЯ КНОПКОЙ',
+        await bot.send_message(message.from_user.id, txt_mistakes.fool_use_buttons,
                                reply_markup=GeneralKeyboards.single_btn_command_start)
-        await UserState.start_register.set()
 
 async def ask_phone(message: types.Message):
     global dataAboutUser
-    dataAboutUser[message.from_user.id]["name"] = message.text
-    await UserState.get_dateAboutUser_number.set()
-    await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.numb}')
+    if re.fullmatch(r'[А-Яа-яЁё\s]+', message.text):
+        dataAboutUser[message.from_user.id]["name"] = message.text
+        await UserState.get_dateAboutUser_number.set()
+        await bot.send_message(message.from_user.id, f'{txt_reg.numb}')
+    else:
+        await bot.send_message(message.from_user.id, txt_mistakes.name_mistake)
+        await UserState.get_dateAboutUser_fio.set() 
 
-async def ask_mail(message:types.Message):
+async def ask_mail(message: types.Message):
     global dataAboutUser
-    dataAboutUser[message.from_user.id]["phone"] = message.text
-    await UserState.go_menu.set()
-    await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.mail}')
+    if message.text.startswith('+7') or message.text.startswith('8'):
+        dataAboutUser[message.from_user.id]["phone"] = message.text
+        await UserState.get_dateAboutUser_mail.set()
+        await bot.send_message(message.from_user.id, f'{txt_reg.mail}')
+    else:
+        await bot.send_message(message.from_user.id, txt_mistakes.phone_mistake)
+        await UserState.get_dateAboutUser_number.set() 
 
-
-async def go_to_menu(message:types.Message):
+async def go_to_menu(message: types.Message):
     global dataAboutUser
-    dataAboutUser[message.from_user.id]["mail"] = message.text
-    await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'Все прошло успешно')
-    print(dataAboutUser)
-    print(dataAboutUser[message.from_user.id]["name"])
+    if "@" in message.text:
+        dataAboutUser[message.from_user.id]["mail"] = message.text
+        await bot.send_message(message.from_user.id, f'Все прошло успешно')
+        #Запрос на POST этих данных
+        if not requestToRegistration({
+            'tg_id':dataAboutUser[message.from_user.id]["user_tg_id"],
+            'name':dataAboutUser[message.from_user.id]["name"],
+            'phone':dataAboutUser[message.from_user.id]["phone"],
+            'email':dataAboutUser[message.from_user.id]["mail"]}):
 
+            await bot.send_message(message.from_user.id, f'{txt_reg.mail}')
+            return
+        #   func to go to the menu
+        await MainMenuState.start_menu.set()
+        await main_menu.menu_command(message)
+        
+    else:
+        await bot.send_message(message.from_user.id, txt_mistakes.email_mistake)
+        await UserState.get_dateAboutUser_mail.set()
+        
 
-    #Запрос на POST этих данных
-    userData = requests.post(f'{BASE_URL}/registrations',json={'tg_id':dataAboutUser[message.from_user.id]["user_tg_id"],
-                                                               'name':dataAboutUser[message.from_user.id]["name"],
-                                                              'phone':dataAboutUser[message.from_user.id]["phone"],
-                                                              'email':dataAboutUser[message.from_user.id]["mail"]})
-
-
-
+    
 # _ _ _ Packing the registration.py of handlers into functions by groups _ _ _
 
 async def user_agreement(message: types.Message):
@@ -120,5 +122,4 @@ def startReg(dp=dp):
     dp.register_message_handler(fio, state=UserState.start_register)
     dp.register_message_handler(ask_phone, state=UserState.get_dateAboutUser_fio)
     dp.register_message_handler(ask_mail, state=UserState.get_dateAboutUser_number)
-    dp.register_message_handler(go_to_menu, state=UserState.go_menu)
-
+    dp.register_message_handler(go_to_menu, state=UserState.get_dateAboutUser_mail)
