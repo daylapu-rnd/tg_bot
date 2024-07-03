@@ -19,6 +19,8 @@ class GeneralKeyboards:
     """
     # Buttons
     btn_command_start = KeyboardButton("/start")
+    btn_register = KeyboardButton("Зарегистрироваться")
+    btn_about = KeyboardButton("О сервисе")
 
     btn_main_menu = KeyboardButton("Веруться в меню")
     btn_profile = KeyboardButton("Профиль")
@@ -39,6 +41,10 @@ class GeneralKeyboards:
     # - - - Command Start - - -
     single_btn_command_start = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     single_btn_command_start.add(btn_command_start)
+    
+    single_btn_registration = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    single_btn_registration.add(btn_register).add(btn_about)
+
 
 
     # Group keyboards
