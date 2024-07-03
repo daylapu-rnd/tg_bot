@@ -14,6 +14,7 @@ from services import *
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 import requests
 import re
+from handlers import main_menu
 
 
 async def startCommand(message: types.Message):
@@ -38,7 +39,7 @@ async def fio(message: types.Message):
         await UserState.get_dateAboutUser_fio.set()
         await bot.send_message(message.from_user.id, f'{txt_reg.fio}', reply_markup=ReplyKeyboardRemove())
     else:
-        await bot.send_message(message.from_user.id, f'Ипользуйте предложенные кнопки, пожалуйста',
+        await bot.send_message(message.from_user.id, txt_mistakes.fool_use_buttons,
                                reply_markup=GeneralKeyboards.single_btn_command_start)
 
 async def ask_phone(message: types.Message):
@@ -48,7 +49,7 @@ async def ask_phone(message: types.Message):
         await UserState.get_dateAboutUser_number.set()
         await bot.send_message(message.from_user.id, f'{txt_reg.numb}')
     else:
-        await bot.send_message(message.from_user.id, f'Неверный формат имени. Пожалуйста, введите имя, содержащее только кириллицу.')
+        await bot.send_message(message.from_user.id, txt_mistakes.name_mistake)
         await UserState.get_dateAboutUser_fio.set() 
 
 async def ask_mail(message: types.Message):
@@ -58,7 +59,7 @@ async def ask_mail(message: types.Message):
         await UserState.get_dateAboutUser_mail.set()
         await bot.send_message(message.from_user.id, f'{txt_reg.mail}')
     else:
-        await bot.send_message(message.from_user.id, f'Введён неверный формат номера')
+        await bot.send_message(message.from_user.id, txt_mistakes.phone_mistake)
         await UserState.get_dateAboutUser_number.set() 
 
 async def go_to_menu(message: types.Message):
@@ -66,26 +67,26 @@ async def go_to_menu(message: types.Message):
     if "@" in message.text:
         dataAboutUser[message.from_user.id]["mail"] = message.text
         await bot.send_message(message.from_user.id, f'Все прошло успешно')
-        # Add func to go to the menu
-    else:
-        await bot.send_message(message.from_user.id, f'Введён неверный формат почты')
-        await UserState.get_dateAboutUser_mail.set()  
+        #Запрос на POST этих данных
+        if not requestToRegistration({
+
+            'tg_id':dataAboutUser[message.from_user.id]["user_tg_id"],
+            'name':dataAboutUser[message.from_user.id]["name"],
+            'phone':dataAboutUser[message.from_user.id]["phone"],
+            'email':dataAboutUser[message.from_user.id]["mail"]}):
+
+            await bot.send_message(message.from_user.id, f'{txt_reg.mail}')
+            return
+        #   func to go to the menu
+        await MainMenuState.start_menu.set()
+        await main_menu.menu_command(message)
         
-    
-    
-    
-    #Запрос на POST этих данных
-    try:
-        userData = requests.post(f'{BASE_URL}/client/registrations',json={'tg_id':dataAboutUser[message.from_user.id]["user_tg_id"],
-                                                               'name':dataAboutUser[message.from_user.id]["name"],
-                                                              'phone':dataAboutUser[message.from_user.id]["phone"],
-                                                              'email':dataAboutUser[message.from_user.id]["mail"]})
-    except Exception as e:
-        log_error(e)
-    
+    else:
+        await bot.send_message(message.from_user.id, txt_mistakes.email_mistake)
+        await UserState.get_dateAboutUser_mail.set()
+        
 
-
-
+    
 # _ _ _ Packing the registration.py of handlers into functions by groups _ _ _
 
 def startReg(dp=dp):
