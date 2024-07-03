@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from datetime import time
 from datetime import timedelta
@@ -42,10 +43,26 @@ async def fio (message:types.Message):
         await AgreementUser.get_user_info.set()
         await bot.send_message(message.from_user.id, f'{txt_reg.t_agreement_1}',
                                reply_markup=GeneralKeyboards.group_agreement)
+
+        # Отправляем сообщение с клавиатурой и ждем ответа
         await bot.send_message(message.from_user.id, f'{txt_reg.t_agreement_2}',
                                reply_markup=keyboards.inlineKeyboards.UserAgreement)
-        await UserState.get_dateAboutUser_fio.set()
-        await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.fio}',reply_markup=ReplyKeyboardRemove())
+
+        # Ждем ответа от пользователя
+        try:
+            response = await bot.await_for_message(lambda m: m.from_user.id == message.from_user.id)
+            if response.text == "Ожидаемый текст кнопки":
+                await UserState.get_dateAboutUser_fio.set()
+                await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.fio}',
+                                       reply_markup=ReplyKeyboardRemove())
+            else:
+                await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'ПОЛЬЗУЙСЯ КНОПКОЙ',
+                                       reply_markup=GeneralKeyboards.single_btn_command_start)
+                await UserState.start_register.set()
+        except asyncio.TimeoutError:
+            await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"],
+                                   "Превышено время ожидания ответа.")
+
     else:
         await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'ПОЛЬЗУЙСЯ КНОПКОЙ',
                                reply_markup=GeneralKeyboards.single_btn_command_start)
@@ -99,16 +116,17 @@ async def user_agreement(message: types.Message):
             ts(1)
             await bot.send_message(message.from_user.id, txt_reg.t_reg_name_1)
             ts(1)
-            await bot.send_message(message.from_user.id, txt_reg.t_reg_name_2)
+            await bot.send_message(message.from_user.id, txt_reg.fio)
     else:
         await bot.send_message(message.from_user.id, txt_reg.t_foolproof_buttons)
         await UserState.start_register.set()
 
 
 def startReg(dp=dp):
-    dp.register_message_handler(user_agreement, state=AgreementUser.get_user_info)
     dp.register_message_handler(startCommand, commands=["start"], state="*")
+    dp.register_message_handler(user_agreement, state=AgreementUser.get_user_info)
     dp.register_message_handler(fio, state=UserState.start_register)
     dp.register_message_handler(ask_phone, state=UserState.get_dateAboutUser_fio)
     dp.register_message_handler(ask_mail, state=UserState.get_dateAboutUser_number)
     dp.register_message_handler(go_to_menu, state=UserState.go_menu)
+
