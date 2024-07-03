@@ -22,13 +22,13 @@ async def menu_command(message: types.Message):
 
 async def main_menu_handler(message: types.Message):
     if message.text == "Профиль":
-        await bot.send_message(message.from_user.id, "Раздел: Профиль",
+        await bot.send_message(message.from_user.id, txt_main_menu.section_profile_menu,
                                reply_markup=GeneralKeyboards.group_kb_profile_menu)
         await ProfileMenuState.start_profile_menu.set()
-    elif message.text == "Веруться в меню":
-        await bot.send_message(message.from_user.id, txt_main_menu.section_main_menu,
-                               reply_markup=GeneralKeyboards.group_kb_main_menu)
-        await MainMenuState.start_menu.set()
+    elif message.text == "Мои заказы":
+        await bot.send_message(message.from_user.id, txt_main_menu.section_my_orders_menu,
+                               reply_markup=GeneralKeyboards.group_kb_my_orders_menu)
+        await MyOrdersMenuState.start_orders_menu.set()
 
 
 # _ _ _ Packing the registration.py of handlers into functions by groups _ _ _

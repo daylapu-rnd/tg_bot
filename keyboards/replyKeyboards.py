@@ -22,6 +22,8 @@ class GeneralKeyboards:
 
     btn_main_menu = KeyboardButton("Веруться в меню")
     btn_profile = KeyboardButton("Профиль")
+    btn_my_orders = KeyboardButton("Мои заказы")
+    btn_check_past_orders = KeyboardButton("Прошлые заказы")
 
     btn_change_profile_info = KeyboardButton("Изменить информацию о профиле")
 
@@ -48,14 +50,18 @@ class GeneralKeyboards:
 
     # - - - Main menu - - -
     group_kb_main_menu = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    group_kb_main_menu.add(btn_profile)
+    group_kb_main_menu.row(btn_profile).add(btn_my_orders)
 
     # - - - Profile menu - - -
     group_kb_profile_menu = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    group_kb_profile_menu.add(btn_change_profile_info)
+    group_kb_profile_menu.add(btn_change_profile_info).row(btn_main_menu)
 
     group_kb_change_info = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=1)
-    group_kb_change_info.add(btn_change_name, btn_change_email, btn_change_phone)
+    group_kb_change_info.add(btn_change_name, btn_change_email, btn_change_phone).row(btn_main_menu)
+
+    # - - - My orders menu - - -
+    group_kb_my_orders_menu = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    group_kb_my_orders_menu.add(btn_check_past_orders).row(btn_main_menu)
 
 
 

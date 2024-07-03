@@ -38,6 +38,7 @@ class ProfileMenuState(StatesGroup):
 
 
 class ChangeProfileInfoState(StatesGroup):
+    """Update profile info states"""
     start_change_info = State()
 
     change_name = State()
@@ -47,3 +48,8 @@ class ChangeProfileInfoState(StatesGroup):
     change_name_confirm = State()
     change_email_confirm = State()
     change_phone_confirm = State()
+
+
+class MyOrdersMenuState(StatesGroup):
+    """Orders menu states"""
+    start_orders_menu = State()

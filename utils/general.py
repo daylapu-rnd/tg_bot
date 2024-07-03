@@ -1,5 +1,8 @@
 import os
 from datetime import datetime
+from aiogram import types
+from loader import BASE_URL
+import requests
 
 
 def get_next_error_number(path):
@@ -38,3 +41,16 @@ def Accounting(tg_id):
     now = datetime.now()
     with open('data//accounting.txt', 'a') as f:
         f.write(f'{error_number}. {now.date()} - - - {now.time()} - - - {tg_id}\n')
+
+
+def format_date_time(date_time: str):
+    """Returns the date or time format"""
+    if len(date_time) == 8:
+        return f"{date_time[:2]}.{date_time[2:4]}.{date_time[4:]}"
+    elif len(date_time) == 4:
+        return f"{date_time[:2]}:{date_time[2:]}"
+    else:
+        return []
+
+def get_client_id(client_tg_id):
+    return requests.get(f"{BASE_URL}/client/get_client", json={"tg_id": client_tg_id}).json()['data']['client_id']

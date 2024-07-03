@@ -22,6 +22,10 @@ async def profile_menu_handler(message: types.Message):
         await bot.send_message(message.from_user.id, txt_profile_menu.what_to_change,
                                reply_markup=GeneralKeyboards.group_kb_change_info)
         await ChangeProfileInfoState.start_change_info.set()
+    elif message.text == "Веруться в меню":
+        await bot.send_message(message.from_user.id, txt_main_menu.section_main_menu,
+                               reply_markup=GeneralKeyboards.group_kb_main_menu)
+        await MainMenuState.start_menu.set()
 
 
 async def change_info_handler(message: types.Message):
@@ -47,6 +51,10 @@ async def change_info_handler(message: types.Message):
         await bot.send_message(message.from_user.id, txt_profile_menu.ask_phone,
                                reply_markup=ReplyKeyboardRemove())
         await ChangeProfileInfoState.change_phone.set()
+    elif message.text == "Веруться в меню":
+        await bot.send_message(message.from_user.id, txt_main_menu.section_main_menu,
+                               reply_markup=GeneralKeyboards.group_kb_main_menu)
+        await MainMenuState.start_menu.set()
     else:
         await bot.send_message(message.from_user.id, txt_mistakes.fool_use_buttons,
                                reply_markup=GeneralKeyboards.group_kb_change_info)
@@ -64,6 +72,7 @@ async def change_name_handler(message: types.Message):
     else:
         await bot.send_message(message.from_user.id, txt_mistakes.name_mistake, reply_markup=ReplyKeyboardRemove())
         await ChangeProfileInfoState.change_name.set()
+
 
 async def change_email_handler(message: types.Message):
     global new_email

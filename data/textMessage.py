@@ -22,6 +22,8 @@ class txt_mistakes:
 
 class txt_main_menu:
     section_main_menu = "Раздел: Главное меню"
+    section_profile_menu = "Раздел: Профиль"
+    section_my_orders_menu = "Раздел: Мои заказы"
 
 
 class txt_profile_menu:
