@@ -36,10 +36,12 @@ class UserState(StatesGroup):
 class MainMenuState(StatesGroup):
     """Main menu states"""
     start_menu = State()
+    my_orders = State()
 
 
 class ProfileMenuState(StatesGroup):
     """Profile menu states"""
+    first_profile_function = State()
     start_profile_menu = State()
 
 

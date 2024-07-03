@@ -14,14 +14,50 @@ from keyboards import *
 from services import *
 from utils.profile_menu import *
 from utils.registration import is_valid_email, is_valid_phone_number, format_phone_number, is_valid_name
+from handlers import main_menu
 import requests
 
 
-async def profile_menu_handler(message: types.Message):
+async def MyProfileCommandRegisteredFunction(message: types.Message, state: FSMContext):
+    global dataAboutUser
+    # Connection.accessing the database using an exception
+    try:
+        userData = requests.post(
+            f"{BASE_URL}/client/profile", json={"tg_id": f'{dataAboutUser[message.from_user.id]["user_tg_id"]}'}).json()
+    except Exception as e:  # If an exception occurs, writes error data
+        log_error(e)
+        some_info = "technical maintenance"
+    if userData["action"] == "success":
+        # Output of user data to the bot
+        await ProfileMenuState.start_profile_menu.set()
+        userData = userData["data"]
+        await bot.send_message(message.from_user.id, f"Имя: {userData['name']}\n"
+                                                         f"E-mail: {userData['email']}\n"
+                                                         f"Номер: {userData['phone']}\n",
+                               reply_markup=GeneralKeyboards.group_kb_profile_menu)
+    elif userData["action"] == "technical maintenance":
+        # Output of the text about the occurrence of an error in the database to the user
+        await bot.send_message(message.from_user.id, txt_reg.mistake)
+        ts(1)
+        await bot.send_message(message.from_user.id, txt_reg.maintenance,
+                               reply_markup=GeneralKeyboards.single_btn_command_start)
+
+
+async def profile_menu_handler(message: types.Message,state:FSMContext):
     if message.text == "Изменить информацию о профиле":
         await bot.send_message(message.from_user.id, txt_profile_menu.what_to_change,
                                reply_markup=GeneralKeyboards.group_kb_change_info)
         await ChangeProfileInfoState.start_change_info.set()
+    elif message.text == "Вернуться в меню":
+        await bot.send_message(message.from_user.id, txt_main_menu.section_main_menu,
+                               reply_markup=GeneralKeyboards.group_kb_main_menu)
+        await MainMenuState.start_menu.set()
+        await main_menu.main_menu_handler(message,state)
+    else:
+        await bot.send_message(message.from_user.id, txt_mistakes.fool_use_buttons,
+                               reply_markup=GeneralKeyboards.group_kb_change_info)
+        await MainMenuState.start_menu.set()
+        await main_menu.menu_command(message)
 
 
 async def change_info_handler(message: types.Message):
@@ -47,6 +83,9 @@ async def change_info_handler(message: types.Message):
         await bot.send_message(message.from_user.id, txt_profile_menu.ask_phone,
                                reply_markup=ReplyKeyboardRemove())
         await ChangeProfileInfoState.change_phone.set()
+    elif message.text == "Профиль":
+        await bot.send_message(message.from_user.id, "Профиль",
+                               reply_markup=GeneralKeyboards.group_kb_profile_menu)
     else:
         await bot.send_message(message.from_user.id, txt_mistakes.fool_use_buttons,
                                reply_markup=GeneralKeyboards.group_kb_change_info)
@@ -166,6 +205,7 @@ async def change_phone_confirmation_handler(message: types.Message):
 # _ _ _ Packing the registration.py of handlers into functions by groups _ _ _
 def profile_menu_reg(dp=dp):
     # - - - Message handlers - - -
+    dp.register_message_handler(MyProfileCommandRegisteredFunction, state=ProfileMenuState.first_profile_function)
     dp.register_message_handler(profile_menu_handler, state=ProfileMenuState.start_profile_menu)
     dp.register_message_handler(change_info_handler, state=ChangeProfileInfoState.start_change_info)
 
