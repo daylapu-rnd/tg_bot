@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 from datetime import time
 from datetime import timedelta
@@ -43,26 +42,20 @@ async def fio (message:types.Message):
         await AgreementUser.get_user_info.set()
         await bot.send_message(message.from_user.id, f'{txt_reg.t_agreement_1}',
                                reply_markup=GeneralKeyboards.group_agreement)
-
-        # Отправляем сообщение с клавиатурой и ждем ответа
         await bot.send_message(message.from_user.id, f'{txt_reg.t_agreement_2}',
                                reply_markup=keyboards.inlineKeyboards.UserAgreement)
 
-        # Ждем ответа от пользователя
-        try:
-            response = await bot.await_for_message(lambda m: m.from_user.id == message.from_user.id)
-            if response.text == "Ожидаемый текст кнопки":
-                await UserState.get_dateAboutUser_fio.set()
-                await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.fio}',
-                                       reply_markup=ReplyKeyboardRemove())
-            else:
-                await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'ПОЛЬЗУЙСЯ КНОПКОЙ',
-                                       reply_markup=GeneralKeyboards.single_btn_command_start)
-                await UserState.start_register.set()
-        except asyncio.TimeoutError:
-            await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"],
-                                   "Превышено время ожидания ответа.")
+        # Ожидаем нажатия на кнопку
+        user_response = await bot.wait_for_message(chat_id=message.from_user.id)
 
+        if user_response.text == txt_reg.fio:
+            await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.fio}',
+                                   reply_markup=ReplyKeyboardRemove())
+            await UserState.start_register.set()
+        else:
+            await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'ПОЛЬЗУЙСЯ КНОПКОЙ',
+                                   reply_markup=GeneralKeyboards.single_btn_command_start)
+            await UserState.start_register.set()
     else:
         await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'ПОЛЬЗУЙСЯ КНОПКОЙ',
                                reply_markup=GeneralKeyboards.single_btn_command_start)
@@ -103,16 +96,15 @@ async def user_agreement(message: types.Message):
     global dataAboutUser
     if message.text == "Согласиться":
         try:
-            dateRequest: dict
             dateRequest = requests.post(
                 f"{BASE_URL}/consent/save_response", json={"user_tg_id": dataAboutUser[message.from_user.id]["user_tg_id"],
                                                            "response": 1}).json()
+            await UserState.get_dateAboutUser_fio.set()
         except Exception as e:
             log_error(e)
-            await bot.send_sticker(message.from_user.id, sticker=open("data/png/file_131068229.png", 'rb'))
             await bot.send_message(message.from_user.id, txt_reg.mistake)
         if dateRequest["action"] == "success":
-            await UserState.get_dateAboutUser_name.set()
+            await UserState.get_dateAboutUser_fio.set()
             ts(1)
             await bot.send_message(message.from_user.id, txt_reg.t_reg_name_1)
             ts(1)
