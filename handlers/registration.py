@@ -32,11 +32,15 @@ async def startCommand(message: types.Message):
         await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.mistake}',
                                reply_markup=GeneralKeyboards.single_btn_command_start)
         return
-
-
-    await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.welcome}',
-                           reply_markup=GeneralKeyboards.single_btn_registration)
-    await UserState.start_register.set()
+    
+    
+    if not Authorisation(dataAboutUser[message.from_user.id]["user_tg_id"]):
+        await bot.send_message(dataAboutUser[message.from_user.id]["user_tg_id"], f'{txt_reg.welcome}',
+                            reply_markup=GeneralKeyboards.single_btn_registration)
+        await UserState.start_register.set()
+    else:
+        await MainMenuState.start_menu.set()
+        await main_menu.menu_command(message)
 
 
 async def fio(message: types.Message):
