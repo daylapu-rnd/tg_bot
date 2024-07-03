@@ -35,12 +35,12 @@ def create_list_of_orders(ordersData: list, delay: int, status: int) -> list:
             elif current_datetime >= order_end_datetime:
                 data_list.append(data)
 
-        print(f"{current_datetime}\n{order_end_datetime}\n")
 
-        # elif status == 1:
-        #     order_end_datetime = datetime.combine(order_end_date, order_end_time) + timedelta(minutes=delay)
-        #     if (order_status in ['waiting', 'active']) and (current_datetime <= order_end_datetime):
-        #         data_list.append(data)
+        elif status == 1:
+            order_end_datetime = datetime.combine(order_end_date, order_end_time) + timedelta(minutes=delay)
+            if (order_status in ['waiting', 'active']) and (current_datetime <= order_end_datetime):
+                data_list.append(data)
+
         #
         # elif status == 2:
         #     if (current_datetime >= order_end_datetime) and (current_datetime <= order_end_datetime + timedelta(minutes=delay)):
@@ -88,3 +88,11 @@ def generate_new_str_for_order(user_data):
 Адрес: г. {data['city']}, ул. {data['street']}, д. {data['house']}{apartment_str}
 """
     return new_str
+
+
+def is_integer_string(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False

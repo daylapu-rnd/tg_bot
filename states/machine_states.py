@@ -59,3 +59,7 @@ class ChangeProfileInfoState(StatesGroup):
 class MyOrdersMenuState(StatesGroup):
     """Orders menu states"""
     start_orders_menu = State()
+
+    cancel_order = State()
+
+    cancel_order_confirm = State()

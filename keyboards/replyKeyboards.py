@@ -26,6 +26,7 @@ class GeneralKeyboards:
     btn_profile = KeyboardButton("Профиль")
     btn_my_orders = KeyboardButton("Мои заказы")
     btn_check_past_orders = KeyboardButton("Прошлые заказы")
+    btn_cancel_order = KeyboardButton("Отменить заказ")
 
     btn_change_profile_info = KeyboardButton("Изменить информацию о профиле")
 
@@ -66,8 +67,8 @@ class GeneralKeyboards:
     group_kb_change_info.add(btn_change_name, btn_change_email, btn_change_phone).row(btn_main_menu)
 
     # - - - My orders menu - - -
-    group_kb_my_orders_menu = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    group_kb_my_orders_menu.add(btn_check_past_orders).row(btn_main_menu)
+    group_kb_my_orders_menu = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=2)
+    group_kb_my_orders_menu.add(btn_check_past_orders, btn_cancel_order).row(btn_main_menu)
 
 
 
