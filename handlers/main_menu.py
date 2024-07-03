@@ -11,6 +11,7 @@ from data import *
 from states import *
 from keyboards import *
 from services import *
+from handlers import profile_menu
 
 
 async def menu_command(message: types.Message):

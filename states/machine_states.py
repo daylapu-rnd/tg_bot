@@ -31,6 +31,9 @@ class UserState(StatesGroup):
     get_dateAboutUser_number = State()
     go_menu = State()
 
+class AgreementUser(StatesGroup):
+    """User Agreement"""
+    get_user_info=State()
 
 
 class MainMenuState(StatesGroup):
