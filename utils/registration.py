@@ -1,6 +1,11 @@
 import re
 
 
+def is_valid_name(name):
+    # Проверка, что строка состоит только из одного слова и содержит только кириллические буквы
+    return bool(re.fullmatch(r'[А-Яа-яЁё]+', name))
+
+
 def is_valid_email(email):
     # Регулярное выражение для проверки email
     regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'

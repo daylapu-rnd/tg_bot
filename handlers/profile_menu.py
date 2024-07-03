@@ -13,7 +13,7 @@ from states import *
 from keyboards import *
 from services import *
 from utils.profile_menu import *
-from utils.registration import is_valid_email, is_valid_phone_number, format_phone_number
+from utils.registration import is_valid_email, is_valid_phone_number, format_phone_number, is_valid_name
 import requests
 
 
@@ -55,12 +55,15 @@ async def change_info_handler(message: types.Message):
 
 async def change_name_handler(message: types.Message):
     global new_name
-    new_name = {message.from_user.id: message.text}
+    new_name = {message.from_user.id: message.text.lower().capitalize()}
     new_name_local = new_name[message.from_user.id]
-    await bot.send_message(message.from_user.id, f'{txt_profile_menu.name_confirmation} {new_name_local}?',
-                           reply_markup=GeneralKeyboards.group_kb_yes_or_no)
-    await ChangeProfileInfoState.change_name_confirm.set()
-
+    if is_valid_name(new_name_local):
+        await bot.send_message(message.from_user.id, f'{txt_profile_menu.name_confirmation} {new_name_local}?',
+                               reply_markup=GeneralKeyboards.group_kb_yes_or_no)
+        await ChangeProfileInfoState.change_name_confirm.set()
+    else:
+        await bot.send_message(message.from_user.id, txt_mistakes.name_mistake, reply_markup=ReplyKeyboardRemove())
+        await ChangeProfileInfoState.change_name.set()
 
 async def change_email_handler(message: types.Message):
     global new_email
@@ -79,7 +82,7 @@ async def change_phone_handler(message: types.Message):
     global new_phone
     new_phone = {message.from_user.id: message.text}
     new_phone_local = new_phone[message.from_user.id]
-    if is_valid_phone_number(format_phone_number(new_phone_local)):
+    if is_valid_phone_number(new_phone_local):
         await bot.send_message(message.from_user.id, f'{txt_profile_menu.phone_confirmation[0]}{format_phone_number(new_phone_local)}{txt_profile_menu.phone_confirmation[1]}',
                                reply_markup=GeneralKeyboards.group_kb_yes_or_no)
         await ChangeProfileInfoState.change_phone_confirm.set()
@@ -98,7 +101,7 @@ async def change_name_confirmation_handler(message: types.Message):
     if message.text == "Да":
         try:
             requests.post(f"{BASE_URL}/client/profile/change_info",
-                           json={"tg_id": tg_id,"name": new_name_local, "email": old_email, "phone": old_phone}).json()
+                           json={"tg_id": tg_id, "name": new_name_local, "email": old_email, "phone": old_phone}).json()
             await bot.send_message(message.from_user.id, "Имя успешно обновлено!",
                                    reply_markup=GeneralKeyboards.group_kb_main_menu)
             await MainMenuState.start_menu.set()
