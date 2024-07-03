@@ -42,8 +42,11 @@ async def startCommand(message: types.Message):
 async def fio(message: types.Message):
     global dataAboutUser
     if message.text == "Зарегистрироваться":
-        await UserState.get_dateAboutUser_fio.set()
-        await bot.send_message(message.from_user.id, f'{txt_reg.fio}', reply_markup=ReplyKeyboardRemove())
+        await AgreementUser.get_user_info.set()
+        await bot.send_message(message.from_user.id, f'{txt_reg.t_agreement_1}',
+                               reply_markup=GeneralKeyboards.group_agreement)
+        await bot.send_message(message.from_user.id, f'{txt_reg.t_agreement_2}',
+                               reply_markup=keyboards.inlineKeyboards.UserAgreement)
     else:
         await bot.send_message(message.from_user.id, txt_mistakes.fool_use_buttons,
                                reply_markup=GeneralKeyboards.single_btn_command_start)
@@ -101,7 +104,6 @@ async def user_agreement(message: types.Message):
             dateRequest = requests.post(
                 f"{BASE_URL}/consent/save_response", json={"user_tg_id": dataAboutUser[message.from_user.id]["user_tg_id"],
                                                            "response": 1}).json()
-            await UserState.get_dateAboutUser_fio.set()
         except Exception as e:
             log_error(e)
             await bot.send_message(message.from_user.id, txt_reg.mistake)
