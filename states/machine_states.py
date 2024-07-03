@@ -23,8 +23,14 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
 class UserState(StatesGroup):
-    """Register states"""
+    """Register state"""
     start_register = State()
+
+    get_dateAboutUser_fio = State()
+    get_dateAboutUser_mail = State()
+    get_dateAboutUser_number = State()
+    go_menu = State()
+
 
 
 class MainMenuState(StatesGroup):
