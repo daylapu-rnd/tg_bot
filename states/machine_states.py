@@ -57,3 +57,6 @@ class ChangeProfileInfoState(StatesGroup):
     change_email_confirm = State()
     change_phone_confirm = State()
 
+
+class AdminState(StatesGroup):
+    get_user_phone = State()

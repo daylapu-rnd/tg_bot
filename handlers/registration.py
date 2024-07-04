@@ -120,9 +120,32 @@ async def user_agreement(message: types.Message):
     else:
         await bot.send_message(message.from_user.id, txt_reg.t_foolproof_buttons)
         await UserState.start_register.set()
+# ============== admin ================================================================
+
+
+async def get_phone(message: types.Message):
+    await bot.send_message(message.from_user.id, "Укажите номер телефона.")
+    await AdminState.get_user_phone.set()
+
+
+
+async def findUser_by_phone(message: types.Message):
+    try:
+        info = user_phone_info(message.text)
+    
+        if len(info) == 0:
+            await bot.send_message(message.from_user.id, "Нет такого пользователя.")
+        else:
+            await bot.send_message(message.from_user.id, info)
+            await MainMenuState.start_menu.set()
+    except Exception as e:
+        log_error(e)
+
 
 
 def startReg(dp=dp):
+    dp.register_message_handler(get_phone, commands=["find_phone"], state="*")
+    dp.register_message_handler(findUser_by_phone, state=AdminState.get_user_phone)
     dp.register_message_handler(startCommand, commands=["start"], state="*")
     dp.register_message_handler(user_agreement, state=AgreementUser.get_user_info)
     dp.register_message_handler(fio, state=UserState.start_register)
