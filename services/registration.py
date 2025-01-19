@@ -11,22 +11,14 @@ def Authentication(user_tg_id):
 
         # Register user in the service
         Accounting(dataAboutUser[user_tg_id]["user_tg_id"])
+
+        
+
         return True
     except Exception as e:
         log_error(e)
         return False
-    
-def Authorisation(user_tg_id):
-    try:
-        dataRequest =  findUser = requests.post(f'{BASE_URL}/client/getOne',json= {'tg_id': user_tg_id}).json()
-        if dataRequest["action"] == "success":
-            return True
-        else:
-            return False
-    except Exception as e:
-        log_error(e)
-        return False
-    
+
 
 
 def requestToRegistration(jsonBody):

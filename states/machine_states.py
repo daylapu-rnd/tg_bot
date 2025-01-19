@@ -31,18 +31,17 @@ class UserState(StatesGroup):
     get_dateAboutUser_number = State()
     go_menu = State()
 
-class AgreementUser(StatesGroup):
-    """User Agreement"""
-    get_user_info=State()
 
 
 class MainMenuState(StatesGroup):
     """Main menu states"""
     start_menu = State()
+    my_orders = State()
 
 
 class ProfileMenuState(StatesGroup):
     """Profile menu states"""
+    first_profile_function = State()
     start_profile_menu = State()
 
 
@@ -57,6 +56,3 @@ class ChangeProfileInfoState(StatesGroup):
     change_email_confirm = State()
     change_phone_confirm = State()
 
-
-class AdminState(StatesGroup):
-    get_user_phone = State()
